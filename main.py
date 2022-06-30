@@ -1,7 +1,9 @@
+import json
+
 import flask
 from flask import jsonify, request
 from server import Server
-
+import threading
 app = flask.Flask(__name__)
 app.config["DEBUG"] = False
 
@@ -14,8 +16,15 @@ def get_robot_status():
 @app.route('/run', methods=['POST'])
 def run_robot():
     data = request.json
-    server.run(data)
-    return request
+    #t1 = threading.Thread(target=server.run, args=(data,), daemon=True)
+    #t1.start()
+
+    response = app.response_class(
+        response=json.dumps({"Data": "Sucessful"}),
+        status=200,
+        mimetype='application/json'
+    )
+    return response, server.run(data)
 
 
 @app.route('/stop', methods=['GET'])
@@ -38,5 +47,4 @@ def resume_robot():
 
 if __name__ == '__main__':
     server = Server()
-    server.set_status("running")
     app.run(host=server.ip, port=server.port, debug=True)

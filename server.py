@@ -14,10 +14,11 @@ class Server(Runner):
         return self.status
 
     def run(self, data):
-        print(data)
         self.data = data
         self.status = "running"
+        print(self.status)
         self.set_robot(self.data)
+        self.set_status("running")
         self.send_log("Execution Started")
         self.copy_repo()
         self.create_virtual_env()

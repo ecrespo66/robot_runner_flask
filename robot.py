@@ -113,7 +113,6 @@ class Runner:
         response = requests.post(endpoint, data)
         return response.json()['token']
 
-
     def set_machine_ip(self):
         """
         This method is used to set the machine ip
@@ -132,7 +131,6 @@ class Runner:
         """
         endpoint = f'{self.http_protocol}{self.url}/api/robots/{self.robot_id}'
         RobotData = requests.get(endpoint, headers=self.headers)
-        print(RobotData.json())
         self.robot = Robot(RobotData.json())
         return self.robot
 
@@ -145,7 +143,6 @@ class Runner:
             self.install_packages_process.send_signal(signal.SIGSTOP)
         if self.run_robot_process.poll() is None:
             self.run_robot_process.send_signal(signal.SIGSTOP)
-
         self.send_log("Execution Paused")
 
     def resume_execution(self):
@@ -191,13 +188,11 @@ class Runner:
 
         endpoint = f'{self.http_protocol}{self.url}/api/git'
         gitData = requests.get(endpoint, headers=self.headers)
-        print()
         git_username = gitData.json()[0]['git_username']
         git_token = gitData.json()[0]['git_token']
         account = self.robot.repoUrl.split("/")[-2]
         repo = self.robot.repoUrl.split("/")[-1]
         self.remote = f"https://{git_username}:{git_token}@github.com/{account}/{repo}"
-        print(self.remote)
         try:
             if os.path.exists(f"{self.robot_folder}/.git"):
                 self.send_log(f"Pulling repo from {self.robot.repoUrl}")
@@ -234,6 +229,7 @@ class Runner:
         """
         Create a subprocess that run robot process with the given arguments
         """
+        self.send_log("Running the process")
         args = {"RobotId": self.robot_id,
                 "url": self.url,
                 "token": self.token,
@@ -241,7 +237,7 @@ class Runner:
                 'params': self.robot_params}
 
         command = f"{self.robot_folder}/venv/bin/python3 {self.robot_folder}/main.py \"{args}\""
-
+        print(command)
         self.run_robot_process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = self.run_robot_process.communicate()
         if err:
@@ -257,7 +253,7 @@ class Runner:
 
     def set_status(self, status: str):
         """Set status of robot execution in the robot manager"""
-        endpoint = f'{self.http_protocol}{self.url}/api/executions/{self.execution_id}'
+        endpoint = f'{self.http_protocol}{self.url}/api/executions/{self.execution_id}/'
 
         requests.put(endpoint, data={'status': status}, headers=self.headers)
 
