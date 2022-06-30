@@ -14,15 +14,15 @@ class Server(Runner):
         return self.status
 
     def run(self, data):
+        print(data)
         self.data = data
-        if self.data:
-            self.status = "running"
-            self.set_robot(self.data)
-            self.send_log("Execution Started")
-            self.copy_repo()
-            self.create_virtual_env()
-            self.install_packages()
-            self.run_robot()
+        self.status = "running"
+        self.set_robot(self.data)
+        self.send_log("Execution Started")
+        self.copy_repo()
+        self.create_virtual_env()
+        self.install_packages()
+        self.run_robot()
 
     def pause(self):
         self.status = "paused"
@@ -51,8 +51,7 @@ class Server(Runner):
         data = config_file.read()
         if data:
             json_data = json.loads(data)
-            kwargs['username'] = json_data['username']
-            kwargs['password'] = json_data['password']
+            kwargs['token'] = json_data['token']
             kwargs['url'] = json_data['url']
             kwargs['machine_id'] = json_data['machine_id']
             kwargs['license_key'] = json_data['license_key']

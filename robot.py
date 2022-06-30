@@ -6,7 +6,7 @@ import string
 import subprocess
 import time
 import git
-from git import Repo, GitCommandError
+from git import Repo
 import requests
 import os
 
@@ -34,13 +34,12 @@ class Runner:
         self.url = self.__clean_url(kwargs.get("url"))
         self.machine_id = kwargs.get("machine_id")
         self.license_key = kwargs.get("license_key")
-        self.username = kwargs.get("username")
         self.folder = kwargs.get("folder")
-        self.password = kwargs.get("password")
         self.server = kwargs.get("server")
-        self.http_protocol = self.__get_http_protocol()
-        self.token = self.__get_token()
+        self.branch = kwargs.get("branch")
+        self.token = kwargs.get("token")
         self.headers = {'Authorization': f'Token {self.token}'}
+        self.http_protocol = self.__get_http_protocol()
         self.__get_network()
         self.port = 5000
         self.set_machine_ip()
@@ -97,7 +96,7 @@ class Runner:
         self.robot_id = data['robot']
         self.execution_id = data['execution']
 
-        if len(data['params']) > 0:
+        if data['params']:
             self.robot_params = data['params']
         else:
             self.robot_params = "None"
@@ -113,6 +112,7 @@ class Runner:
         data = {'username': self.username, 'password': self.password}
         response = requests.post(endpoint, data)
         return response.json()['token']
+
 
     def set_machine_ip(self):
         """
@@ -130,10 +130,9 @@ class Runner:
         """
         This method is used to get the robot data.
         """
-
-        self.__get_token()
         endpoint = f'{self.http_protocol}{self.url}/api/robots/{self.robot_id}'
         RobotData = requests.get(endpoint, headers=self.headers)
+        print(RobotData.json())
         self.robot = Robot(RobotData.json())
         return self.robot
 
@@ -158,7 +157,6 @@ class Runner:
             self.install_packages_process.send_signal(signal.SIGCONT)
         if self.run_robot_process.poll() is None:
             self.run_robot_process.send_signal(signal.SIGCONT)
-
         self.send_log("Execution Resumed")
 
     def stop_execution(self):
@@ -193,20 +191,21 @@ class Runner:
 
         endpoint = f'{self.http_protocol}{self.url}/api/git'
         gitData = requests.get(endpoint, headers=self.headers)
-        gitName = gitData.json()[0]['gitUserName']
-        gitToken = gitData.json()[0]['GitToken']
+        print()
+        git_username = gitData.json()[0]['git_username']
+        git_token = gitData.json()[0]['git_token']
         account = self.robot.repoUrl.split("/")[-2]
         repo = self.robot.repoUrl.split("/")[-1]
-        self.remote = f"https://{gitName}:{gitToken}@github.com/{account}/{repo}"
-
+        self.remote = f"https://{git_username}:{git_token}@github.com/{account}/{repo}"
+        print(self.remote)
         try:
             if os.path.exists(f"{self.robot_folder}/.git"):
                 self.send_log(f"Pulling repo from {self.robot.repoUrl}")
-                git.cmd.Git(self.robot_folder).pull(self.robot.repoUrl, 'main')
+                git.cmd.Git(self.robot_folder).pull(self.robot.repoUrl, self.branch)
                 self.send_log("Repo pulled successfully")
             else:
                 self.send_log(f"Cloning repo from {self.robot.repoUrl}")
-                Repo.clone_from(self.remote, self.robot_folder, branch='main')
+                Repo.clone_from(self.remote, self.robot_folder, branch=self.branch)
                 self.send_log("Repo cloned successfully")
         except Exception as e:
             self.send_log(e, "systemException")
@@ -231,30 +230,13 @@ class Runner:
         else:
             self.send_log("Packages installed successfully")
 
-        """
-        while True:
-            realtime_output = self.install_packages_process.stdout.readline()
-            if realtime_output == '' and self.install_packages_process.poll() is not None:
-                break
-            if realtime_output:
-                message = str(realtime_output.strip())
-                if 'Collecting' in message or "Using cached" in message or 'Requirement already satisfied' in message:
-                    pass
-                elif "ERROR" in message:
-                    self.send_log(message, 'systemException')
-                    self.send_log("Execution Failed")
-                else:
-                    self.send_log(message)
-        """
-
     def run_robot(self):
         """
         Create a subprocess that run robot process with the given arguments
         """
         args = {"RobotId": self.robot_id,
                 "url": self.url,
-                "username": self.username,
-                "password": self.password,
+                "token": self.token,
                 "ExecutionId": self.execution_id,
                 'params': self.robot_params}
 
@@ -265,22 +247,6 @@ class Runner:
         if err:
             self.send_log(err.decode(), "systemException")
             self.finish_execution()
-
-        """
-        try:
-            self.run_robot_process = subprocess.Popen(command,  stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, encoding='utf-8')
-                realtime_output = self.run_robot_process.stdout.readline()
-                if realtime_output == '' and self.run_robot_process.poll() is not None:
-                    break
-                if realtime_output:
-                    if stderr:
-                        message = str(realtime_output.strip())
-                        self.send_log(message, 'systemException')
-               
-
-        except subprocess.CalledProcessError as e:
-            self.send_log(e, 'systemException')
-        """
 
     def finish_execution(self):
         """
@@ -315,3 +281,4 @@ class Runner:
             requests.post(endpoint, log_data, headers=self.headers)
         except Exception as e:
             print(e)
+

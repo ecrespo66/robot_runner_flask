@@ -14,7 +14,7 @@ def get_robot_status():
 @app.route('/run', methods=['POST'])
 def run_robot():
     data = request.json
-    server.serve(data)
+    server.run(data)
     return request
 
 
@@ -38,6 +38,5 @@ def resume_robot():
 
 if __name__ == '__main__':
     server = Server()
-    # serve(app, host="127.0.0.1", port=5000)'
     server.set_status("running")
     app.run(host=server.ip, port=server.port, debug=True)

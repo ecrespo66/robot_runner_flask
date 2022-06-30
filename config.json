@@ -1,7 +1,8 @@
 {
-  "username": "enriquecrespodebenito",
-  "password": "Mariquinah3",
+
+
   "url": "http://127.0.0.1:8000/",
+  "token": "87ff1a91798e45bb616a86634277c2d5f224098a",
   "machine_id" : "BFUB8M96A58C",
   "license_key": "WEEKCPGQP70ZL6861KPUPW7BEB0G3W5JBZ4K",
   "folder": "/Users/enriquecrespodebenito/Documents"
