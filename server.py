@@ -10,23 +10,17 @@ class Server(Runner):
         super().__init__(**kwargs)
         self.data = None
 
-    def get_status(self):
-        return self.status
-
     def run(self, data):
         self.data = data
         self.status = "running"
-        print(self.status)
         self.set_robot(self.data)
-        self.set_status("running")
         self.send_log("Execution Started")
         self.copy_repo()
-        self.create_virtual_env()
-        self.install_packages()
         self.run_robot()
+        self.status = "free"
 
     def pause(self):
-        self.status = "paused"
+        self.staus = "paused"
         try:
             self.pause_execution()
         except:
@@ -37,7 +31,7 @@ class Server(Runner):
         try:
             self.resume_execution()
         except:
-            print("Unable to pause execution.")
+            print("Unable to pause resume.")
 
     def stop(self):
         self.status = "free"

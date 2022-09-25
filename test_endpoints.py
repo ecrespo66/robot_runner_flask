@@ -1,9 +1,23 @@
-import requests
+import signal
+import subprocess
 
 
 if __name__ == "__main__":
-    endpoint = f'http://127.0.0.1:8000/api/git/'
+#
+    command = "python /Users/enriquecrespodebenito/Documents/GitHub/robot_runner_flask/test.py"
 
-    data = {'ExecutionStatus': "Running", "RobotId": "5WS478T1COW7"}
-    response = requests.get(endpoint,
-                            headers={'Authorization': f'Token 87ff1a91798e45bb616a86634277c2d5f224098a'})
+    p = subprocess.Popen(command,
+                     shell=True,
+                     bufsize=1,
+                     stdout=subprocess.PIPE,
+                     stderr=subprocess.STDOUT,
+                     encoding='utf-8',
+                     errors='replace')
+
+    while True:
+        realtime_output = p.stdout.readline()
+        if realtime_output == '' and p.poll() is not None:
+            break
+        if realtime_output:
+            print(realtime_output.strip())
+            print(p.pid)
