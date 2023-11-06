@@ -26,6 +26,7 @@ def set_robot_status():
 def run_robot():
     data = request.json
     try:
+        print(data)
         server.run(data)
         message = json.dumps({'message': "running"})
         status = 200
@@ -35,6 +36,7 @@ def run_robot():
             mimetype='application/json')
         server.status = "free"
     except Exception as e:
+        print(e)
         server.status = "free"
         response = app.response_class(
             response=json.dumps({'message': e.__str__()}),
@@ -98,7 +100,7 @@ def resume_robot():
 if __name__ == '__main__':
 
     server = Server()
-    app.run(host='0.0.0.0', port=80, debug=True)
+    app.run(host='0.0.0.0', port=8088, debug=True)
 
     # from waitress import serve
     # serve(app, host="0.0.0.0", port=80)

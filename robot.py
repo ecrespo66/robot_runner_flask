@@ -39,7 +39,7 @@ class Runner:
         self.headers = {'Authorization': f'Token {self.token}'}
         self.http_protocol = self.__get_http_protocol()
         self.__get_network()
-        self.port = 80
+        self.port = 8088
         self.set_machine_ip()
 
     def __get_network(self):
@@ -99,7 +99,9 @@ class Runner:
             self.robot_params = "None"
 
         self.get_robot_data()
+
         self.set_robot_folder()
+
 
     def set_machine_ip(self):
         """
@@ -145,7 +147,9 @@ class Runner:
         """ This method is used to copy the robot repository. """
 
         endpoint = f'{self.http_protocol}{self.url}/api/git'
+
         gitData = requests.get(endpoint, headers=self.headers)
+
         git_username = gitData.json()[0]['git_username']
         git_token = gitData.json()[0]['git_token']
         account = self.robot.repoUrl.split("/")[-2]
@@ -201,7 +205,8 @@ class Runner:
                 if "error" in realtime_output.strip().lower():
                     self.send_log(realtime_output.strip(), "syex")
                 else:
-                    self.send_log(realtime_output.strip())
+                    pass
+                    #self.send_log(realtime_output.strip())
                 sys.stdout.flush()
         self.finish_execution()
         if self.run_robot_process.returncode != 0:
@@ -230,6 +235,7 @@ class Runner:
         """
 
         endpoint = f'{self.http_protocol}{self.url}/api/logs/'
+
         log_data = {
             "LogType": log_type,
             "LogData": message,

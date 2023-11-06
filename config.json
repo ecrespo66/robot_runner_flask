@@ -1,7 +1,7 @@
 {
-  "url": "https://robot-console.herokuapp.com/",
-  "token": "5d50d8f1c0868e488c6121504163e59f747db4d1",
-  "machine_id" : "N9AJO8SK9VQ3",
-  "license_key": "IW3OPO2QS1XKVFTP48P6U339ATRY9Y1MIYAD",
+  "url": "https://robot-console-a73e07ff7a0d.herokuapp.com/",
+  "token": "9abe709fd1c0767a5f75c205268a368deb765480",
+  "machine_id" : "JIZKGNSGENR8",
+  "license_key": "3OPALMIRTK12SIISPYD6A43OD5VXDNTW1041",
   "folder": "/Users/enriquecrespodebenito/Documents"
 }
